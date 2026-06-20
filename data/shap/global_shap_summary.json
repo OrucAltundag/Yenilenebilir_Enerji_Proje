@@ -1,0 +1,111 @@
+{
+  "sample_size": 2000,
+  "models": {
+    "ges": {
+      "expected_value": 0.5,
+      "feature_importance": [
+        {
+          "feature": "ALLSKY_SFC_SW_DWN",
+          "mean_abs_shap": 13.5942
+        },
+        {
+          "feature": "tesvik_bolgesi",
+          "mean_abs_shap": 8.6585
+        },
+        {
+          "feature": "arazi_egimi_yuzde",
+          "mean_abs_shap": 1.0606
+        },
+        {
+          "feature": "yuzey_alani_km2",
+          "mean_abs_shap": 0.0042
+        },
+        {
+          "feature": "RH2M",
+          "mean_abs_shap": 0.0018
+        },
+        {
+          "feature": "T2M",
+          "mean_abs_shap": 0.0012
+        },
+        {
+          "feature": "WS10M",
+          "mean_abs_shap": 0.0008
+        },
+        {
+          "feature": "yuzey_Orman_ve_Doğa",
+          "mean_abs_shap": 0.0008
+        },
+        {
+          "feature": "yuzey_Şehir_Yerleşimi",
+          "mean_abs_shap": 0.0004
+        },
+        {
+          "feature": "yuzey_Tarım_Arazisi",
+          "mean_abs_shap": 0.0002
+        },
+        {
+          "feature": "yuzey_Su_Yüzeyi",
+          "mean_abs_shap": 0.0001
+        },
+        {
+          "feature": "yuzey_Sulak_Alan",
+          "mean_abs_shap": 0.0
+        }
+      ]
+    },
+    "res": {
+      "expected_value": 0.5,
+      "feature_importance": [
+        {
+          "feature": "tesvik_bolgesi",
+          "mean_abs_shap": 9.3984
+        },
+        {
+          "feature": "WS10M",
+          "mean_abs_shap": 5.1573
+        },
+        {
+          "feature": "arazi_egimi_yuzde",
+          "mean_abs_shap": 1.2039
+        },
+        {
+          "feature": "ALLSKY_SFC_SW_DWN",
+          "mean_abs_shap": 0.0083
+        },
+        {
+          "feature": "T2M",
+          "mean_abs_shap": 0.0069
+        },
+        {
+          "feature": "RH2M",
+          "mean_abs_shap": 0.0065
+        },
+        {
+          "feature": "yuzey_alani_km2",
+          "mean_abs_shap": 0.0042
+        },
+        {
+          "feature": "yuzey_Orman_ve_Doğa",
+          "mean_abs_shap": 0.0012
+        },
+        {
+          "feature": "yuzey_Şehir_Yerleşimi",
+          "mean_abs_shap": 0.0009
+        },
+        {
+          "feature": "yuzey_Tarım_Arazisi",
+          "mean_abs_shap": 0.0004
+        },
+        {
+          "feature": "yuzey_Su_Yüzeyi",
+          "mean_abs_shap": 0.0
+        },
+        {
+          "feature": "yuzey_Sulak_Alan",
+          "mean_abs_shap": 0.0
+        }
+      ]
+    }
+  }
+}

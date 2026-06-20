@@ -1,0 +1,64 @@
+{
+  "version": "2023.1",
+  "data_period": "2023-01-01..2023-12-31",
+  "weights": {
+    "uretim_potansiyeli": 60.0,
+    "tesvik_avantaji": 30.0,
+    "egim_cezasi": -10.0
+  },
+  "bounds": {
+    "ALLSKY_SFC_SW_DWN": {
+      "lo": 0.2088,
+      "hi": 9.089
+    },
+    "WS10M": {
+      "lo": 0.43,
+      "hi": 16.03
+    },
+    "arazi_egimi_yuzde": {
+      "lo": 0.0,
+      "hi": 63.56
+    },
+    "tesvik_bolgesi": {
+      "lo": 1.0,
+      "hi": 6.0
+    }
+  },
+  "raw_score_bounds": {
+    "ges": {
+      "min": -8.971644782775163,
+      "max": 88.69372733102112
+    },
+    "res": {
+      "min": -6.807692307692308,
+      "max": 78.89284504042212
+    }
+  },
+  "score_bands": [
+    {
+      "label": "Çok Yüksek",
+      "min": 80,
+      "max": 100
+    },
+    {
+      "label": "Yüksek",
+      "min": 60,
+      "max": 80
+    },
+    {
+      "label": "Orta",
+      "min": 40,
+      "max": 60
+    },
+    {
+      "label": "Düşük",
+      "min": 20,
+      "max": 40
+    },
+    {
+      "label": "Çok Düşük",
+      "min": 0,
+      "max": 20
+    }
+  ]
+}

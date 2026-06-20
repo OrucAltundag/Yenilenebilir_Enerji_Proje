@@ -1,0 +1,56 @@
+# --- API ---
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+pydantic-settings==2.7.0
+python-multipart==0.0.20
+
+# --- DB ---
+SQLAlchemy==2.0.36
+psycopg[binary]==3.2.3
+alembic==1.14.0
+geoalchemy2==0.16.0
+
+# --- Cache / Queue ---
+redis==5.2.1
+rq==2.0.0
+
+# --- Auth ---
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# --- ML / Veri ---
+numpy==2.2.0
+pandas==2.2.3
+scikit-learn==1.6.0
+xgboost==2.1.3
+shap==0.46.0
+
+# --- Veri sağlamlaştırma (Faz 1) ---
+rapidfuzz==3.10.1
+Unidecode==1.3.8
+openpyxl==3.1.5
+
+# --- Rapor üretimi (Faz 8) ---
+reportlab==4.2.5
+Jinja2==3.1.4
+
+# --- Object storage (Faz 8) ---
+boto3==1.35.84
+
+# --- Güvenlik / hız sınırı (Faz 4/8) ---
+slowapi==0.1.9
+
+# --- Gözlemlenebilirlik (Faz 9) ---
+prometheus-client==0.21.1
+
+# --- Diğer ---
+httpx==0.28.1
+loguru==0.7.3
+python-dotenv==1.0.1
+
+# --- Test / Geliştirme ---
+pytest==8.3.4
+pytest-asyncio==0.25.0
+ruff==0.8.4
+mypy==1.13.0

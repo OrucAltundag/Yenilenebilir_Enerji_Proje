@@ -1,0 +1,58 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# --- Node / Frontend ---
+node_modules/
+.next/
+dist/
+build/
+.cache/
+.turbo/
+*.tsbuildinfo
+
+# --- Veri ve modeller ---
+# Büyük (çoğu 17–70 MB) ve yeniden üretilebilir dosyalar repoya gönderilmez;
+# python scripts/build_all.py ile her zaman yeniden üretilirler.
+data/raw/
+data/processed/
+data/shap/*.pkl
+data/buraki_dev.db
+*.pkl
+*.parquet
+*.db
+*.sqlite3
+# data/reference, data/models, data/shap/global_shap_summary.json TUTULUR
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Ortam değişkenleri ve gizli anahtarlar ---
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# --- Log ve geçici dosyalar ---
+logs/
+*.log
+tmp/
+~$*
