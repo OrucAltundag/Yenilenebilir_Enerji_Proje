@@ -1,4 +1,8 @@
+from typing import Literal
+
 from pydantic import BaseModel
+
+Energy = Literal["ges", "res"]
 
 
 class ScoreMapItem(BaseModel):
@@ -10,13 +14,13 @@ class ScoreMapItem(BaseModel):
 
 
 class ScoreMapResponse(BaseModel):
-    energy: str
+    energy: Energy
     year: int
     period: str
     items: list[ScoreMapItem]
 
 
 class ScoreRankingResponse(BaseModel):
-    energy: str
+    energy: Energy
     year: int
     items: list[ScoreMapItem]

@@ -1,0 +1,43 @@
+{
+  "job_id": 4,
+  "result": {
+    "ges": {
+      "model_id": 7,
+      "model_version": "20260621T102522Z_e58ff38_job4",
+      "metrics": {
+        "mae": 4.389905487289428,
+        "rmse": 5.638241813607934,
+        "r2": 0.9074927548025395,
+        "test_size": 1000
+      },
+      "artifact": "20260621T102522Z_e58ff38_job4/Yapay_Zeka_GES_Modeli.json"
+    },
+    "res": {
+      "model_id": 8,
+      "model_version": "20260621T102522Z_e58ff38_job4",
+      "metrics": {
+        "mae": 3.2046531520843504,
+        "rmse": 4.1509443264702055,
+        "r2": 0.886463308176159,
+        "test_size": 1000
+      },
+      "artifact": "20260621T102522Z_e58ff38_job4/Yapay_Zeka_RES_Modeli.json"
+    }
+  },
+  "params": {
+    "energy_targets": [
+      "ges",
+      "res"
+    ],
+    "dataset_version": null,
+    "test_size": 0.2,
+    "random_state": 42,
+    "n_estimators": 30,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "note": "test eğitimi",
+    "register_model": true,
+    "generate_shap": false,
+    "quick_mode": true
+  }
+}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { AuthPanel } from "@/components/AuthPanel";
 import { EnergyToggle } from "@/components/EnergyToggle";
 import { MonthlyChart } from "@/components/MonthlyChart";
 import { ScenarioLab } from "@/components/ScenarioLab";
@@ -53,6 +54,8 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
         </div>
         <EnergyToggle value={energy} onChange={setEnergy} />
       </header>
+
+      <AuthPanel />
 
       <section style={{ display: "flex", gap: 24, marginBottom: 24 }}>
         <Stat label="Skor" value={<ScoreBadge score={score} />} />

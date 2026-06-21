@@ -1,25 +1,27 @@
-"""data/reference altındaki il/ilçe lookup dosyalarından district_master tablosunu üretir.
+"""Canonical district master ve alias CSV artefaktlarını üretir.
 
 Çalıştırma:
     python scripts/seed_district_master.py
 """
 
+from __future__ import annotations
+
+import sys
 from pathlib import Path
 
-import pandas as pd
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
-DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "reference"
+from ml.pipelines.district_master import OUT_ALIAS, OUT_MASTER, build  # noqa: E402
 
 
 def main() -> None:
-    alanlar = pd.read_excel(DATA_DIR / "il_ilce_alanlari.xlsx")
-    yuzey = pd.read_csv(DATA_DIR / "ilce_yuzey_turu.csv")
-    yuzolcum = pd.read_csv(DATA_DIR / "ilce_yuzolcumu.csv")
-
-    print("alanlar:", alanlar.shape)
-    print("yuzey:", yuzey.shape)
-    print("yuzolcum:", yuzolcum.shape)
-    print("TODO: il/ilçe ad normalizasyonu, canonical district_id üretimi ve DB yazımı.")
+    master, alias = build()
+    OUT_MASTER.parent.mkdir(parents=True, exist_ok=True)
+    master.to_csv(OUT_MASTER, index=False, encoding="utf-8-sig")
+    alias.to_csv(OUT_ALIAS, index=False, encoding="utf-8-sig")
+    print(f"district_master: {len(master)} kayıt -> {OUT_MASTER}")
+    print(f"district_alias: {len(alias)} kayıt -> {OUT_ALIAS}")
 
 
 if __name__ == "__main__":

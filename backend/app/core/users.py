@@ -1,6 +1,7 @@
 """Demo kullanıcı deposu (in-memory).
 
-Üretimde gerçek kullanıcı tablosu / OIDC ile değiştirilir. Roller: admin, analyst.
+Üretimde gerçek kullanıcı tablosu / OIDC ile değiştirilir.
+Roller: admin, analyst, developer.
 Varsayılan parolalar yalnız geliştirme içindir.
 """
 
@@ -21,6 +22,7 @@ class User:
 _USERS: dict[str, User] = {
     "admin": User("admin", "admin", hash_password("admin123")),
     "analyst": User("analyst", "analyst", hash_password("analyst123")),
+    "developer": User("developer", "developer", hash_password("developer123")),
 }
 
 

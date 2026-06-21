@@ -18,6 +18,14 @@ class Settings(BaseSettings):
     app_port: int = 8000
     app_secret_key: str = "change-me"
 
+    # QA BUG-002: demo X-User-Id başlığı yalnız dev/test'te kabul edilir.
+    # APP_ENV=production iken default False (üretimde kapalı).
+    allow_demo_user_header: bool = True
+
+    # QA BUG-005: login için saniye/limit eşikleri (kullanıcı + IP başına).
+    login_rate_window_seconds: int = 60
+    login_rate_max_attempts: int = 5
+
     # Dev varsayılanı SQLite (sunucusuz); docker-compose DATABASE_URL ile Postgres'e geçer
     database_url: str = f"sqlite:///{(PROJECT_ROOT / 'data' / 'buraki_dev.db').as_posix()}"
     data_repository: str = "auto"  # auto|csv|database
@@ -47,7 +55,25 @@ class Settings(BaseSettings):
     cors_origins: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3002",
     ]
 
 
-settings = Settings()
+def _load_settings() -> Settings:
+    s = Settings()
+    # QA BUG-003: production'da default secret ile başlamayı engelle
+    if s.app_env.lower() in {"production", "prod"}:
+        if s.app_secret_key == "change-me" or len(s.app_secret_key) < 32:
+            raise RuntimeError(
+                "APP_SECRET_KEY production'da varsayılan/zayıf değerle kullanılamaz "
+                "(en az 32 karakter, 'change-me' kabul edilmez)."
+            )
+        # production'da demo header otomatik kapalı
+        s.allow_demo_user_header = False
+    return s
+
+
+settings = _load_settings()

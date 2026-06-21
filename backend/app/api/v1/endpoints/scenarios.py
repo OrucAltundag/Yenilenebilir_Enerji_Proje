@@ -33,7 +33,7 @@ def simulate(payload: ScenarioRequest):
     Gözlem verisi değiştirilmez (simülasyon).
     """
     repo = get_repository()
-    row = repo.get_summary(payload.district_id)
+    row = repo.get_summary(payload.district_id, payload.year)
     if row is None:
         raise HTTPException(status_code=404, detail="İlçe bulunamadı")
 

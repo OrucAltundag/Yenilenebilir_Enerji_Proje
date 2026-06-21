@@ -31,11 +31,19 @@ def create_project(
     db: Session = Depends(get_db),
     user: str = Depends(current_user),
 ):
+    repo = get_repository()
+    district_ids = list(dict.fromkeys(payload.district_ids))
+    invalid = [district_id for district_id in district_ids if repo.get_summary(district_id) is None]
+    if invalid:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Geçersiz ilçe kimliği: {', '.join(invalid)}",
+        )
     project = SavedProject(
         owner_id=user,
         name=payload.name,
         note=payload.note,
-        district_ids=payload.district_ids,
+        district_ids=district_ids,
         energy=payload.energy,
     )
     db.add(project)
@@ -92,6 +100,13 @@ def save_scenario(
     db: Session = Depends(get_db),
     user: str = Depends(current_user),
 ):
+    if payload.project_id is not None:
+        project = db.get(SavedProject, payload.project_id)
+        if project is None:
+            raise HTTPException(status_code=404, detail="Proje bulunamadı")
+        if project.owner_id != user:
+            raise HTTPException(status_code=403, detail="Bu projeye erişim yok")
+
     repo = get_repository()
     row = repo.get_summary(payload.district_id)
     if row is None:

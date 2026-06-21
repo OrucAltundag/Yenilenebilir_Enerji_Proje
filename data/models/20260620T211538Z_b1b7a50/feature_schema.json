@@ -1,0 +1,20 @@
+{
+  "features": [
+    "T2M",
+    "RH2M",
+    "WS10M",
+    "ALLSKY_SFC_SW_DWN",
+    "arazi_egimi_yuzde",
+    "yuzey_alani_km2",
+    "yuzey_Orman_ve_Doğa",
+    "yuzey_Su_Yüzeyi",
+    "yuzey_Sulak_Alan",
+    "yuzey_Tarım_Arazisi",
+    "yuzey_Şehir_Yerleşimi",
+    "tesvik_bolgesi"
+  ],
+  "targets": [
+    "GES_YATIRIM_SKORU",
+    "RES_YATIRIM_SKORU"
+  ]
+}

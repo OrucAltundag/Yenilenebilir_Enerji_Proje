@@ -14,7 +14,7 @@ def score_map(
 ):
     """Choropleth harita için ilçe başına agregalanmış skorları döner."""
     repo = get_repository()
-    items = [ScoreMapItem(**r) for r in repo.score_map(energy)]
+    items = [ScoreMapItem(**r) for r in repo.score_map(energy, year)]
     return ScoreMapResponse(energy=energy, year=year, period=period, items=items)
 
 
@@ -26,5 +26,5 @@ def score_ranking(
 ):
     """En yüksek yıllık ortalamaya sahip ilçeleri döner."""
     repo = get_repository()
-    items = [ScoreMapItem(**r) for r in repo.ranking(energy, limit)]
+    items = [ScoreMapItem(**r) for r in repo.ranking(energy, limit, year)]
     return ScoreRankingResponse(energy=energy, year=year, items=items)

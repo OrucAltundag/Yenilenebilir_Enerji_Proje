@@ -5,6 +5,7 @@ from app.api.v1.endpoints import (
     auth,
     districts,
     meta,
+    ml,
     projects,
     reports,
     scenarios,
@@ -22,3 +23,4 @@ api_router.include_router(scenarios.router, prefix="/scenarios", tags=["scenario
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
 api_router.include_router(reports.router, prefix="/reports", tags=["reports"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(ml.router, prefix="/ml", tags=["ml"])

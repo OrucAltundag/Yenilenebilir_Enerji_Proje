@@ -112,6 +112,109 @@ export type AuditEntry = {
   created_at: string;
 };
 
+export type TrainingJobStatus =
+  | "queued"
+  | "running"
+  | "completed"
+  | "failed";
+
+export type TrainingJobSummary = {
+  id: number;
+  status: TrainingJobStatus;
+  requested_by: string;
+  dataset_version: string | null;
+  energy_targets: string[];
+  note: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  duration_seconds: number | null;
+  created_at: string;
+};
+
+export type TrainingJobDetail = TrainingJobSummary & {
+  parameters: Record<string, unknown>;
+  error_message: string | null;
+  log_text: string | null;
+  result_models: Record<string, { model_id: number; metrics: Record<string, number> }>;
+};
+
+export type ModelStatusValue =
+  | "completed"
+  | "candidate"
+  | "active"
+  | "archived"
+  | "failed";
+
+export type ModelSummary = {
+  id: number;
+  model_version: string;
+  energy_type: Energy;
+  status: ModelStatusValue;
+  dataset_version: string | null;
+  scoring_version: string | null;
+  metrics: Record<string, number>;
+  created_by: string;
+  created_at: string;
+  activated_at: string | null;
+  training_job_id: number | null;
+  notes: string | null;
+};
+
+export type ModelDetail = ModelSummary & {
+  artifact_path: string | null;
+  feature_names: string[];
+  feature_importance: Record<string, number>;
+  parameters: Record<string, unknown>;
+};
+
+export type ModelCompareResult = {
+  left: ModelDetail;
+  right: ModelDetail;
+  metric_diff: Record<string, number>;
+  feature_importance_diff: Record<string, number>;
+};
+
+export type DataQuality = {
+  total_rows: number;
+  district_count: number;
+  missing_values: number;
+  zero_area_count: number;
+  outlier_count: number;
+  dataset_version: string;
+  sources: string[];
+  warnings: string[];
+};
+
+export type TechnicalLog = {
+  id: string;
+  source: "training" | "audit";
+  level: "info" | "error";
+  message: string;
+  actor: string;
+  created_at: string;
+};
+
+export type ReportHistoryItem = {
+  district_id: string;
+  district_name: string;
+  energy: Energy;
+  created_at: string;
+};
+
+export type TrainingJobPayload = {
+  energy_targets: Energy[];
+  dataset_version?: string | null;
+  test_size?: number;
+  random_state?: number;
+  n_estimators?: number;
+  learning_rate?: number;
+  max_depth?: number;
+  note?: string | null;
+  register_model?: boolean;
+  generate_shap?: boolean;
+  quick_mode?: boolean;
+};
+
 export type Readyz = {
   ready: boolean;
   checks: Record<string, boolean>;
@@ -170,11 +273,25 @@ async function parseError(res: Response, path: string): Promise<Error> {
   }
 }
 
+// QA BUG-004: 401 alındığında istemci oturumunu derhal temizle ve auth-change
+// olayı yayınla. UI bileşenleri bu olayı dinleyip kullanıcıyı login durumuna
+// geri çekiyor; böylece "giriş yapmış görünen ama her isteği başarısız olan"
+// hayalet oturum durumu oluşmuyor.
+function handleUnauthorized(authenticated: boolean) {
+  if (!authenticated || typeof window === "undefined") return;
+  if (window.localStorage.getItem(TOKEN_KEY)) {
+    clearSession();
+  }
+}
+
 async function getJSON<T>(path: string, authenticated = false): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { Accept: "application/json", ...(authenticated ? authHeaders() : {}) },
   });
-  if (!res.ok) throw await parseError(res, path);
+  if (!res.ok) {
+    if (res.status === 401) handleUnauthorized(authenticated);
+    throw await parseError(res, path);
+  }
   return res.json();
 }
 
@@ -192,7 +309,10 @@ async function postJSON<T>(
     },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw await parseError(res, path);
+  if (!res.ok) {
+    if (res.status === 401) handleUnauthorized(authenticated);
+    throw await parseError(res, path);
+  }
   return res.json();
 }
 
@@ -201,7 +321,10 @@ async function deleteRequest(path: string, authenticated = false): Promise<void>
     method: "DELETE",
     headers: { ...(authenticated ? authHeaders() : {}) },
   });
-  if (!res.ok) throw await parseError(res, path);
+  if (!res.ok) {
+    if (res.status === 401) handleUnauthorized(authenticated);
+    throw await parseError(res, path);
+  }
 }
 
 export const api = {
@@ -281,4 +404,45 @@ export const api = {
       true
     ),
   auditLog: (limit = 20) => getJSON<AuditEntry[]>(`/admin/audit?limit=${limit}`, true),
+
+  // Developer / ML paneli
+  trainingJobs: (limit = 50) =>
+    getJSON<TrainingJobSummary[]>(`/ml/training-jobs?limit=${limit}`, true),
+  trainingJobDetail: (id: number) =>
+    getJSON<TrainingJobDetail>(`/ml/training-jobs/${id}`, true),
+  trainingJobLogs: (id: number) =>
+    getJSON<{ job_id: number; status: TrainingJobStatus; log: string; error: string | null }>(
+      `/ml/training-jobs/${id}/logs`,
+      true
+    ),
+  createTrainingJob: (payload: TrainingJobPayload) =>
+    postJSON<TrainingJobDetail>(`/ml/training-jobs`, payload, true),
+  models: (params?: { energy?: Energy; status?: string; limit?: number }) => {
+    const search = new URLSearchParams();
+    if (params?.energy) search.set("energy", params.energy);
+    if (params?.status) search.set("status", params.status);
+    if (params?.limit) search.set("limit", String(params.limit));
+    const qs = search.toString();
+    return getJSON<ModelSummary[]>(`/ml/models${qs ? `?${qs}` : ""}`, true);
+  },
+  activeModels: () => getJSON<ModelSummary[]>(`/ml/models/active`, true),
+  modelDetail: (id: number) => getJSON<ModelDetail>(`/ml/models/${id}`, true),
+  compareModels: (leftId: number, rightId: number) =>
+    getJSON<ModelCompareResult>(
+      `/ml/models/compare?left_id=${leftId}&right_id=${rightId}`,
+      true
+    ),
+  markModelCandidate: (id: number, note?: string) =>
+    postJSON<ModelSummary>(`/ml/models/${id}/mark-candidate`, { note: note ?? null }, true),
+  activateModel: (id: number, note?: string) =>
+    postJSON<ModelSummary>(`/ml/models/${id}/activate`, { note: note ?? null }, true),
+  archiveModel: (id: number, note?: string) =>
+    postJSON<ModelSummary>(`/ml/models/${id}/archive`, { note: note ?? null }, true),
+  dataQualityLatest: () => getJSON<DataQuality>(`/ml/data-quality/latest`, true),
+  technicalLogs: (limit = 100) =>
+    getJSON<TechnicalLog[]>(`/ml/logs?limit=${limit}`, true),
+  modelApprovals: () => getJSON<ModelSummary[]>(`/ml/approvals`, true),
+  compareDistricts: (districtIds: string[], year = 2023) =>
+    postJSON<DistrictSummary[]>(`/districts/compare`, { district_ids: districtIds, year }),
+  reportHistory: () => getJSON<ReportHistoryItem[]>(`/reports/history`, true),
 };

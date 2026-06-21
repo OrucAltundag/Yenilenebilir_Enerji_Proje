@@ -1,0 +1,31 @@
+{
+  "job_id": 5,
+  "result": {
+    "ges": {
+      "model_id": 9,
+      "model_version": "20260621T102735Z_b78bc6d_job5",
+      "metrics": {
+        "mae": 9.214081669464111,
+        "rmse": 11.357947384844604,
+        "r2": 0.6246053688142217,
+        "test_size": 1000
+      },
+      "artifact": "20260621T102735Z_b78bc6d_job5/Yapay_Zeka_GES_Modeli.json"
+    }
+  },
+  "params": {
+    "energy_targets": [
+      "ges"
+    ],
+    "dataset_version": null,
+    "test_size": 0.2,
+    "random_state": 42,
+    "n_estimators": 10,
+    "learning_rate": 0.05,
+    "max_depth": 6,
+    "note": "Codex arayüz doğrulama eğitimi",
+    "register_model": true,
+    "generate_shap": false,
+    "quick_mode": true
+  }
+}

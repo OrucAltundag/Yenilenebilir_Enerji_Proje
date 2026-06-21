@@ -178,6 +178,70 @@ class DatasetVersion(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
 
+class TrainingJob(Base):
+    """Developer panelinden tetiklenen model eğitim job kaydı."""
+
+    __tablename__ = "training_job"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    status: Mapped[str] = mapped_column(String, default="queued", index=True)
+    # queued | running | completed | failed
+    requested_by: Mapped[str] = mapped_column(String, index=True)
+    dataset_version: Mapped[str | None] = mapped_column(String)
+    energy_targets: Mapped[list] = mapped_column(JSON, default=list)
+    parameters: Mapped[dict] = mapped_column(JSON, default=dict)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    duration_seconds: Mapped[float | None] = mapped_column(Float)
+    error_message: Mapped[str | None] = mapped_column(String)
+    log_text: Mapped[str | None] = mapped_column(String)
+    result_models: Mapped[dict] = mapped_column(JSON, default=dict)
+    note: Mapped[str | None] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class ModelRegistry(Base):
+    """Eğitim sonucu üretilen model kayıt defteri (kayıt + durum)."""
+
+    __tablename__ = "model_registry"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    model_version: Mapped[str] = mapped_column(String, index=True)
+    energy_type: Mapped[str] = mapped_column(String, index=True)  # ges | res
+    artifact_path: Mapped[str | None] = mapped_column(String)
+    dataset_version: Mapped[str | None] = mapped_column(String)
+    scoring_version: Mapped[str | None] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="completed", index=True)
+    # completed | candidate | active | archived | failed
+    metrics: Mapped[dict] = mapped_column(JSON, default=dict)
+    feature_names: Mapped[list] = mapped_column(JSON, default=list)
+    feature_importance: Mapped[dict] = mapped_column(JSON, default=dict)
+    parameters: Mapped[dict] = mapped_column(JSON, default=dict)
+    training_job_id: Mapped[int | None] = mapped_column(
+        ForeignKey("training_job.id"), nullable=True
+    )
+    created_by: Mapped[str] = mapped_column(String, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    notes: Mapped[str | None] = mapped_column(String)
+
+
+class ModelMetric(Base):
+    """Tek model + enerji türü için saklanan metrikler (geçmiş analiz)."""
+
+    __tablename__ = "model_metric"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    model_id: Mapped[int] = mapped_column(ForeignKey("model_registry.id"), index=True)
+    energy_type: Mapped[str] = mapped_column(String, index=True)
+    mae: Mapped[float | None] = mapped_column(Float)
+    rmse: Mapped[float | None] = mapped_column(Float)
+    r2: Mapped[float | None] = mapped_column(Float)
+    test_size: Mapped[float | None] = mapped_column(Float)
+    sample_count: Mapped[int | None] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
 class AuditLog(Base):
     """Yönetici işlemleri için denetim kaydı."""
 

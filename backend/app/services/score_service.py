@@ -1,18 +1,11 @@
-"""Deterministik skor motoru.
+"""Deterministik skor servis katmanı.
 
 Rapora göre üretimin birincil skor kaynağı bu modül olmalı; XGBoost yardımcı
 motor olarak kullanılır. Formülasyon ve normalizasyon sabitleri scoring_config
 artefaktında versiyonlanır.
 """
 
-from dataclasses import dataclass
-
-
-@dataclass(frozen=True)
-class ScoringConfig:
-    version: str
-    weights: dict[str, float]
-    norm_bounds: dict[str, tuple[float, float]]
+from app.ml.scoring_engine import ScoringConfig, score_record
 
 
 class ScoreService:
@@ -20,7 +13,7 @@ class ScoreService:
         self.config = config
 
     def compute_ges(self, features: dict[str, float]) -> float:
-        raise NotImplementedError
+        return score_record(features, self.config)["ges"]
 
     def compute_res(self, features: dict[str, float]) -> float:
-        raise NotImplementedError
+        return score_record(features, self.config)["res"]

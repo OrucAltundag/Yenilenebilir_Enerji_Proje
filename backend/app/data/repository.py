@@ -7,7 +7,7 @@ from functools import lru_cache
 from typing import Protocol
 
 import pandas as pd
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
@@ -29,12 +29,12 @@ def _ascii_upper(value: str) -> str:
 
 
 class Repository(Protocol):
-    def count_districts(self) -> int: ...
+    def count_districts(self, year: int | None = None) -> int: ...
     def search(self, query: str, limit: int) -> list[dict]: ...
-    def get_summary(self, district_id: str) -> dict | None: ...
-    def get_monthly(self, district_id: str) -> list[dict]: ...
-    def score_map(self, energy: str) -> list[dict]: ...
-    def ranking(self, energy: str, limit: int) -> list[dict]: ...
+    def get_summary(self, district_id: str, year: int | None = None) -> dict | None: ...
+    def get_monthly(self, district_id: str, year: int | None = None) -> list[dict]: ...
+    def score_map(self, energy: str, year: int | None = None) -> list[dict]: ...
+    def ranking(self, energy: str, limit: int, year: int | None = None) -> list[dict]: ...
 
 
 class CsvDataRepository:
@@ -49,9 +49,14 @@ class CsvDataRepository:
             + " "
             + self.summary["district"].map(_ascii_upper)
         )
+        self.year = int(self.summary["year"].iloc[0])
 
-    def count_districts(self) -> int:
-        return len(self.summary)
+    def _summary_for_year(self, year: int | None) -> pd.DataFrame:
+        selected_year = self.year if year is None else year
+        return self.summary[self.summary["year"] == selected_year]
+
+    def count_districts(self, year: int | None = None) -> int:
+        return len(self._summary_for_year(year))
 
     def search(self, query: str, limit: int) -> list[dict]:
         key = _ascii_upper(query)
@@ -59,32 +64,36 @@ class CsvDataRepository:
         cols = ["district_id", "province", "district"]
         return self.summary.loc[mask, cols].head(limit).to_dict("records")
 
-    def get_summary(self, district_id: str) -> dict | None:
-        row = self.summary[self.summary["district_id"] == district_id]
+    def get_summary(self, district_id: str, year: int | None = None) -> dict | None:
+        summary = self._summary_for_year(year)
+        row = summary[summary["district_id"] == district_id]
         if row.empty:
             return None
         return row.iloc[0].to_dict()
 
-    def get_monthly(self, district_id: str) -> list[dict]:
+    def get_monthly(self, district_id: str, year: int | None = None) -> list[dict]:
+        selected_year = self.year if year is None else year
+        if selected_year != self.year:
+            return []
         rows = self.monthly[self.monthly["district_id"] == district_id]
         return rows.sort_values("ay")[["ay", "ges_mean", "res_mean"]].to_dict(
             "records"
         )
 
-    def score_map(self, energy: str) -> list[dict]:
+    def score_map(self, energy: str, year: int | None = None) -> list[dict]:
         mean_col = f"{energy.upper()}_YATIRIM_SKORU_mean"
         pct_col = f"{energy}_percentile"
-        out = self.summary[
+        out = self._summary_for_year(year)[
             ["district_id", "province", "district", mean_col, pct_col]
         ].rename(columns={mean_col: "score", pct_col: "percentile"})
         return out.to_dict("records")
 
-    def ranking(self, energy: str, limit: int) -> list[dict]:
+    def ranking(self, energy: str, limit: int, year: int | None = None) -> list[dict]:
         rank_col = f"{energy}_national_rank"
         mean_col = f"{energy.upper()}_YATIRIM_SKORU_mean"
         pct_col = f"{energy}_percentile"
         out = (
-            self.summary.nsmallest(limit, rank_col)[
+            self._summary_for_year(year).nsmallest(limit, rank_col)[
                 ["district_id", "province", "district", mean_col, pct_col]
             ]
             .rename(columns={mean_col: "score", pct_col: "percentile"})
@@ -103,14 +112,18 @@ class SqlDataRepository:
         self.session_factory = session_factory
         self.year = year
 
-    def count_districts(self) -> int:
+    def _selected_year(self, year: int | None) -> int:
+        return self.year if year is None else year
+
+    def count_districts(self, year: int | None = None) -> int:
         with self.session_factory() as db:
-            return len(
-                db.scalars(
-                    select(DistrictScoreSummary.district_id).where(
-                        DistrictScoreSummary.year == self.year
+            return int(
+                db.scalar(
+                    select(func.count()).select_from(DistrictScoreSummary).where(
+                        DistrictScoreSummary.year == self._selected_year(year)
                     )
-                ).all()
+                )
+                or 0
             )
 
     def search(self, query: str, limit: int) -> list[dict]:
@@ -177,7 +190,7 @@ class SqlDataRepository:
             "res_percentile": summary.res_percentile,
         }
 
-    def get_summary(self, district_id: str) -> dict | None:
+    def get_summary(self, district_id: str, year: int | None = None) -> dict | None:
         with self.session_factory() as db:
             row = db.execute(
                 select(DistrictMaster, DistrictScoreSummary)
@@ -187,14 +200,14 @@ class SqlDataRepository:
                 )
                 .where(
                     DistrictMaster.district_id == district_id,
-                    DistrictScoreSummary.year == self.year,
+                    DistrictScoreSummary.year == self._selected_year(year),
                 )
             ).one_or_none()
             if row is None:
                 return None
             return self._summary_dict(row[0], row[1])
 
-    def get_monthly(self, district_id: str) -> list[dict]:
+    def get_monthly(self, district_id: str, year: int | None = None) -> list[dict]:
         with self.session_factory() as db:
             rows = db.execute(
                 select(
@@ -204,13 +217,18 @@ class SqlDataRepository:
                 )
                 .where(
                     DistrictMonthlyProfile.district_id == district_id,
-                    DistrictMonthlyProfile.year == self.year,
+                    DistrictMonthlyProfile.year == self._selected_year(year),
                 )
                 .order_by(DistrictMonthlyProfile.month)
             ).mappings()
             return [dict(row) for row in rows]
 
-    def _score_rows(self, energy: str, limit: int | None = None) -> list[dict]:
+    def _score_rows(
+        self,
+        energy: str,
+        limit: int | None = None,
+        year: int | None = None,
+    ) -> list[dict]:
         if energy == "ges":
             score_column = DistrictScoreSummary.ges_score_mean
             percentile_column = DistrictScoreSummary.ges_percentile
@@ -232,7 +250,7 @@ class SqlDataRepository:
                 DistrictScoreSummary,
                 DistrictScoreSummary.district_id == DistrictMaster.district_id,
             )
-            .where(DistrictScoreSummary.year == self.year)
+            .where(DistrictScoreSummary.year == self._selected_year(year))
             .order_by(rank_column)
         )
         if limit is not None:
@@ -241,11 +259,11 @@ class SqlDataRepository:
             rows = db.execute(statement).mappings()
             return [dict(row) for row in rows]
 
-    def score_map(self, energy: str) -> list[dict]:
-        return self._score_rows(energy)
+    def score_map(self, energy: str, year: int | None = None) -> list[dict]:
+        return self._score_rows(energy, year=year)
 
-    def ranking(self, energy: str, limit: int) -> list[dict]:
-        return self._score_rows(energy, limit)
+    def ranking(self, energy: str, limit: int, year: int | None = None) -> list[dict]:
+        return self._score_rows(energy, limit, year)
 
 
 # Eski importları kırmamak için geriye uyumlu ad.

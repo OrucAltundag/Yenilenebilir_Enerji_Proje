@@ -1,0 +1,54 @@
+{
+  "candidates": [
+    {
+      "colsample_bytree": 1.0,
+      "learning_rate": 0.05,
+      "max_depth": 4,
+      "min_child_weight": 10,
+      "name": "depth4_regularized",
+      "num_boost_round": 1200,
+      "reg_alpha": 0.0,
+      "reg_lambda": 5.0,
+      "subsample": 0.9
+    },
+    {
+      "colsample_bytree": 1.0,
+      "learning_rate": 0.04,
+      "max_depth": 6,
+      "min_child_weight": 5,
+      "name": "depth6_balanced",
+      "num_boost_round": 1600,
+      "reg_alpha": 0.0,
+      "reg_lambda": 3.0,
+      "subsample": 0.9
+    },
+    {
+      "colsample_bytree": 1.0,
+      "learning_rate": 0.03,
+      "max_depth": 8,
+      "min_child_weight": 2,
+      "name": "depth8_fine",
+      "num_boost_round": 2000,
+      "reg_alpha": 0.0,
+      "reg_lambda": 2.0,
+      "subsample": 0.95
+    }
+  ],
+  "early_stopping_rounds": 75,
+  "group_counts": {
+    "test": 192,
+    "train": 669,
+    "validation": 96
+  },
+  "input": "C:\\Users\\dadil\\Documents\\Yazilimsal_Projeler\\Buraki\\data\\processed\\XGBoost_Egitim_Veriseti_Duzeltilmis.csv",
+  "row_counts": {
+    "test": 70080,
+    "train": 244185,
+    "validation": 35040
+  },
+  "run_id": "20260620T211538Z_b1b7a50",
+  "seed": 42,
+  "target_r2": 0.96,
+  "test_size": 0.2,
+  "validation_size_within_train": 0.125
+}

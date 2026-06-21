@@ -49,3 +49,40 @@ def test_save_scenario_persists_snapshot():
 
     listed = client.get("/api/v1/projects/scenarios/list", headers=ALICE)
     assert any(s["id"] == body["id"] for s in listed.json())
+
+
+def test_scenario_cannot_attach_to_another_users_project():
+    did = _a_district_id()
+    project = client.post(
+        "/api/v1/projects",
+        headers=ALICE,
+        json={"name": "Alice projesi", "district_ids": [did], "energy": "ges"},
+    ).json()
+
+    response = client.post(
+        "/api/v1/projects/scenarios",
+        headers=BOB,
+        json={
+            "district_id": did,
+            "project_id": project["id"],
+            "overrides": {"tesvik_bolgesi": 2},
+        },
+    )
+
+    assert response.status_code == 403
+
+
+def test_project_rejects_unknown_district_and_energy():
+    unknown_district = client.post(
+        "/api/v1/projects",
+        headers=ALICE,
+        json={"name": "Hatalı", "district_ids": ["TR-does-not-exist"], "energy": "ges"},
+    )
+    unknown_energy = client.post(
+        "/api/v1/projects",
+        headers=ALICE,
+        json={"name": "Hatalı", "district_ids": [], "energy": "coal"},
+    )
+
+    assert unknown_district.status_code == 422
+    assert unknown_energy.status_code == 422

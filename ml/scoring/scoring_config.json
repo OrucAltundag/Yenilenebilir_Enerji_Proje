@@ -2,8 +2,8 @@
   "version": "2023.1",
   "data_period": "2023-01-01..2023-12-31",
   "weights": {
-    "uretim_potansiyeli": 60.0,
-    "tesvik_avantaji": 30.0,
+    "uretim_potansiyeli": 80.0,
+    "tesvik_avantaji": 10.0,
     "egim_cezasi": -10.0
   },
   "bounds": {
@@ -26,12 +26,12 @@
   },
   "raw_score_bounds": {
     "ges": {
-      "min": -8.971644782775163,
-      "max": 88.69372733102112
+      "min": -8.628859710366884,
+      "max": 88.33224898593882
     },
     "res": {
-      "min": -6.807692307692308,
-      "max": 78.89284504042212
+      "min": -5.743589743589744,
+      "max": 78.39867841409692
     }
   },
   "score_bands": [

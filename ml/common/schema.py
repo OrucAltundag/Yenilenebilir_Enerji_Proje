@@ -41,9 +41,12 @@ SCORE_NORM_COLUMNS: tuple[str, ...] = (
     "tesvik_bolgesi",
 )
 
-# Skor formülü ağırlıkları (rapor 6: %60 üretim, %30 teşvik, -%10 eğim)
-WEIGHT_PRODUCTION = 60.0
-WEIGHT_INCENTIVE = 30.0
+# Skor formülü ağırlıkları (2026-06-21 revizyonu: üretim potansiyeli baskın,
+# teşvik bölgesi etkisi minimalize edildi).
+# Eski: %60 üretim, %30 teşvik, -%10 eğim
+# Yeni: %80 üretim, %10 teşvik, -%10 eğim
+WEIGHT_PRODUCTION = 80.0
+WEIGHT_INCENTIVE = 10.0
 WEIGHT_SLOPE_PENALTY = 10.0
 
 # İl bazlı teşvik bölgesi (1 = en gelişmiş, 6 = en az gelişmiş)

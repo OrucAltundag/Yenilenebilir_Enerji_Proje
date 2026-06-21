@@ -25,6 +25,7 @@ FEATURE_ORDER: tuple[str, ...] = (
     "tesvik_bolgesi",
 )
 
-WEIGHT_PRODUCTION = 60.0
-WEIGHT_INCENTIVE = 30.0
+# 2026-06-21: teşvik etkisi minimalize edildi (eski %30 → %10), üretim %80'e çekildi.
+WEIGHT_PRODUCTION = 80.0
+WEIGHT_INCENTIVE = 10.0
 WEIGHT_SLOPE_PENALTY = 10.0

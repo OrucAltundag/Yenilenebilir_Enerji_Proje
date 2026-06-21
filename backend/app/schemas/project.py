@@ -1,13 +1,14 @@
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ProjectCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=120)
     note: str | None = Field(default=None, max_length=1000)
-    district_ids: list[str] = Field(default_factory=list)
-    energy: str = "ges"
+    district_ids: list[str] = Field(default_factory=list, max_length=20)
+    energy: Literal["ges", "res"] = "ges"
 
 
 class ProjectOut(BaseModel):
@@ -16,11 +17,10 @@ class ProjectOut(BaseModel):
     name: str
     note: str | None
     district_ids: list[str]
-    energy: str
+    energy: Literal["ges", "res"]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ScenarioSaveRequest(BaseModel):
@@ -40,5 +40,4 @@ class ScenarioOut(BaseModel):
     scoring_version: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -88,3 +88,21 @@ def test_scenario_rejects_out_of_range():
         json={"district_id": top["district_id"], "overrides": {"tesvik_bolgesi": 99}},
     )
     assert r.status_code == 422
+
+
+def test_unknown_year_does_not_relabel_2023_data():
+    top = client.get(
+        "/api/v1/scores/ranking", params={"energy": "ges", "limit": 1}
+    ).json()["items"][0]
+
+    summary = client.get(
+        f"/api/v1/districts/{top['district_id']}/summary", params={"year": 2024}
+    )
+    ranking = client.get(
+        "/api/v1/scores/ranking",
+        params={"energy": "ges", "year": 2024, "limit": 5},
+    )
+
+    assert summary.status_code == 404
+    assert ranking.status_code == 200
+    assert ranking.json()["items"] == []
